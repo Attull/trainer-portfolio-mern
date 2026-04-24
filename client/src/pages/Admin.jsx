@@ -1,28 +1,34 @@
 import { useEffect, useState } from 'react';
-import { ImagePlus, LogIn, PlusCircle, Trash2 } from 'lucide-react';
+import { ImagePlus, LogIn, MessageSquareQuote, PlusCircle, Trash2 } from 'lucide-react';
 import { api, assetUrl } from '../api.js';
 
 const emptyBlog = { title: '', category: 'Learning', excerpt: '', content: '', tags: '', isPublished: true };
 const emptyGallery = { title: '', description: '', trainingDate: '', location: '', audience: '', tags: '' };
+const emptyReview = { studentName: '', headline: '', quote: '', source: '', rating: 5, isFeatured: true };
 
 export default function Admin() {
   const [token, setToken] = useState(localStorage.getItem('trainer_admin_token') || '');
   const [login, setLogin] = useState({ email: '', password: '' });
   const [blogs, setBlogs] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [blogForm, setBlogForm] = useState(emptyBlog);
   const [galleryForm, setGalleryForm] = useState(emptyGallery);
+  const [reviewForm, setReviewForm] = useState(emptyReview);
   const [blogImage, setBlogImage] = useState(null);
   const [galleryImage, setGalleryImage] = useState(null);
+  const [reviewImage, setReviewImage] = useState(null);
   const [message, setMessage] = useState('');
 
   const loadAdminData = async () => {
-    const [blogRes, galleryRes] = await Promise.all([
+    const [blogRes, galleryRes, reviewRes] = await Promise.all([
       api.get('/blogs?admin=true'),
-      api.get('/gallery')
+      api.get('/gallery'),
+      api.get('/reviews?admin=true')
     ]);
     setBlogs(blogRes.data);
     setGallery(galleryRes.data);
+    setReviews(reviewRes.data);
   };
 
   useEffect(() => {
@@ -61,6 +67,18 @@ export default function Admin() {
     loadAdminData();
   };
 
+  const createReview = async (event) => {
+    event.preventDefault();
+    const data = new FormData();
+    Object.entries(reviewForm).forEach(([key, value]) => data.append(key, value));
+    if (reviewImage) data.append('screenshot', reviewImage);
+    await api.post('/reviews', data);
+    setReviewForm(emptyReview);
+    setReviewImage(null);
+    setMessage('Student review added');
+    loadAdminData();
+  };
+
   const deleteBlog = async (id) => {
     await api.delete(`/blogs/${id}`);
     loadAdminData();
@@ -68,6 +86,11 @@ export default function Admin() {
 
   const deleteGalleryItem = async (id) => {
     await api.delete(`/gallery/${id}`);
+    loadAdminData();
+  };
+
+  const deleteReview = async (id) => {
+    await api.delete(`/reviews/${id}`);
     loadAdminData();
   };
 
@@ -88,11 +111,11 @@ export default function Admin() {
     <section className="admin-shell">
       <div className="section-heading">
         <p className="eyebrow">Admin Studio</p>
-        <h1>Manage blogs and training photos</h1>
+        <h1>Manage blogs, training photos, and student reviews</h1>
         {message && <p>{message}</p>}
       </div>
 
-      <div className="admin-grid">
+      <div className="admin-grid admin-grid--triple">
         <form className="admin-form" onSubmit={createBlog}>
           <h2><PlusCircle size={20} /> New Blog</h2>
           <input placeholder="Title" value={blogForm.title} onChange={(event) => setBlogForm({ ...blogForm, title: event.target.value })} required />
@@ -115,6 +138,17 @@ export default function Admin() {
           <label className="file-label">Training image<input type="file" accept="image/*" onChange={(event) => setGalleryImage(event.target.files[0])} required /></label>
           <button className="primary-button" type="submit">Add Photo</button>
         </form>
+
+        <form className="admin-form" onSubmit={createReview}>
+          <h2><MessageSquareQuote size={20} /> New Student Review</h2>
+          <input placeholder="Student name" value={reviewForm.studentName} onChange={(event) => setReviewForm({ ...reviewForm, studentName: event.target.value })} required />
+          <input placeholder="Short headline" value={reviewForm.headline} onChange={(event) => setReviewForm({ ...reviewForm, headline: event.target.value })} />
+          <input placeholder="Source (WhatsApp, LinkedIn, Email)" value={reviewForm.source} onChange={(event) => setReviewForm({ ...reviewForm, source: event.target.value })} />
+          <textarea placeholder="Optional quote or summary" value={reviewForm.quote} onChange={(event) => setReviewForm({ ...reviewForm, quote: event.target.value })} />
+          <input type="number" min="1" max="5" placeholder="Rating" value={reviewForm.rating} onChange={(event) => setReviewForm({ ...reviewForm, rating: event.target.value })} />
+          <label className="file-label">Review screenshot<input type="file" accept="image/*" onChange={(event) => setReviewImage(event.target.files[0])} required /></label>
+          <button className="primary-button" type="submit">Add Review</button>
+        </form>
       </div>
 
       <div className="manage-grid">
@@ -134,6 +168,16 @@ export default function Admin() {
               <img src={assetUrl(item.imageUrl)} alt={item.title} />
               <span>{item.title}</span>
               <button className="icon-button danger" onClick={() => deleteGalleryItem(item._id)} title="Delete photo"><Trash2 size={17} /></button>
+            </div>
+          ))}
+        </section>
+        <section>
+          <h2>Student Reviews</h2>
+          {reviews.map((review) => (
+            <div className="manage-row" key={review._id}>
+              <img src={assetUrl(review.screenshotUrl)} alt={review.studentName} />
+              <span>{review.studentName}</span>
+              <button className="icon-button danger" onClick={() => deleteReview(review._id)} title="Delete review"><Trash2 size={17} /></button>
             </div>
           ))}
         </section>

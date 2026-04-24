@@ -272,6 +272,89 @@ img {
   gap: 22px;
 }
 
+.reviews-band {
+  background: linear-gradient(180deg, #eef7f8 0%, #f7fbfc 100%);
+}
+
+.review-showcase {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.review-copy, .review-media {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.review-copy {
+  padding: clamp(22px, 4vw, 36px);
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.review-copy h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+}
+
+.review-stars, .review-controls, .review-credit {
+  display: flex;
+  align-items: center;
+}
+
+.review-stars {
+  gap: 5px;
+  color: var(--gold);
+}
+
+.review-credit {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-credit span {
+  color: var(--muted);
+}
+
+.review-controls {
+  gap: 10px;
+}
+
+.review-media {
+  overflow: hidden;
+}
+
+.review-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+}
+
+.review-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.review-dot {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #bfd1d8;
+  cursor: pointer;
+}
+
+.review-dot.active {
+  background: var(--accent);
+}
+
 .gallery-card, .blog-card, .admin-form, .comments, .manage-grid section {
   background: white;
   border: 1px solid var(--line);
@@ -419,6 +502,10 @@ textarea.tall {
   align-items: start;
 }
 
+.admin-grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .file-label {
   display: grid;
   gap: 8px;
@@ -471,7 +558,7 @@ textarea.tall {
     flex-direction: column;
   }
 
-  .hero, .two-column, .admin-grid, .manage-grid {
+  .hero, .two-column, .admin-grid, .manage-grid, .review-showcase {
     grid-template-columns: 1fr;
   }
 

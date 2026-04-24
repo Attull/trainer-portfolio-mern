@@ -1,14 +1,28 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight, Award, Mail, MapPin, Phone, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Award, Mail, MapPin, Phone, Quote, Sparkles, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { api } from '../api.js';
+import { api, assetUrl } from '../api.js';
 
 export default function Home() {
   const [profile, setProfile] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [activeReview, setActiveReview] = useState(0);
 
   useEffect(() => {
-    api.get('/profile').then((res) => setProfile(res.data));
+    Promise.all([api.get('/profile'), api.get('/reviews')]).then(([profileRes, reviewRes]) => {
+      setProfile(profileRes.data);
+      setReviews(reviewRes.data);
+    });
   }, []);
+
+  const currentReview = useMemo(() => reviews[activeReview] || null, [reviews, activeReview]);
+
+  const moveReview = (direction) => {
+    setActiveReview((current) => {
+      if (!reviews.length) return 0;
+      return (current + direction + reviews.length) % reviews.length;
+    });
+  };
 
   if (!profile) return <section className="section">Loading profile...</section>;
 
@@ -57,6 +71,57 @@ export default function Home() {
           {profile.skills.map((skill) => <span key={skill}>{skill}</span>)}
         </div>
       </section>
+
+      {currentReview && (
+        <section className="section reviews-band">
+          <div className="section-heading">
+            <p className="eyebrow"><Quote size={16} /> Student Reviews</p>
+            <h1>Proof from real learner feedback</h1>
+            <p>Upload screenshots of student messages, LinkedIn recommendations, or classroom feedback and feature them here.</p>
+          </div>
+
+          <div className="review-showcase">
+            <div className="review-copy">
+              <div className="review-stars">
+                {Array.from({ length: currentReview.rating || 5 }).map((_, index) => <Star key={index} size={16} fill="currentColor" />)}
+              </div>
+              <h2>{currentReview.headline || `Feedback from ${currentReview.studentName}`}</h2>
+              {currentReview.quote && <p>{currentReview.quote}</p>}
+              <div className="review-credit">
+                <strong>{currentReview.studentName}</strong>
+                {currentReview.source && <span>{currentReview.source}</span>}
+              </div>
+              {reviews.length > 1 && (
+                <div className="review-controls">
+                  <button className="icon-button" onClick={() => moveReview(-1)} title="Previous review">
+                    <ArrowLeft size={18} />
+                  </button>
+                  <button className="icon-button" onClick={() => moveReview(1)} title="Next review">
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="review-media">
+              <img src={assetUrl(currentReview.screenshotUrl)} alt={`Review from ${currentReview.studentName}`} />
+            </div>
+          </div>
+
+          {reviews.length > 1 && (
+            <div className="review-dots">
+              {reviews.map((review, index) => (
+                <button
+                  key={review._id}
+                  className={index === activeReview ? 'review-dot active' : 'review-dot'}
+                  onClick={() => setActiveReview(index)}
+                  title={`Show review ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="contact-band">
         <div>

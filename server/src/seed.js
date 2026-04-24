@@ -2,11 +2,13 @@ import 'dotenv/config';
 import { connectDb } from './lib/db.js';
 import { Blog } from './models/Blog.js';
 import { GalleryItem } from './models/GalleryItem.js';
+import { Review } from './models/Review.js';
 
 await connectDb();
 
 await Blog.deleteMany({});
 await GalleryItem.deleteMany({});
+await Review.deleteMany({});
 
 await Blog.create([
   {
@@ -47,6 +49,25 @@ await GalleryItem.create([
     location: 'Hyderabad',
     audience: 'Junior developers',
     tags: ['JavaScript', 'Basics']
+  }
+]);
+
+await Review.create([
+  {
+    studentName: 'Priya S.',
+    headline: 'Very practical and easy to follow',
+    quote: 'The sessions were hands-on from start to finish and helped me build confidence quickly.',
+    source: 'WhatsApp feedback',
+    rating: 5,
+    screenshotUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'
+  },
+  {
+    studentName: 'Rahul K.',
+    headline: 'Clear explanations with real projects',
+    quote: 'What stood out was the way complex MERN concepts were broken into small practical steps.',
+    source: 'LinkedIn recommendation',
+    rating: 5,
+    screenshotUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
   }
 ]);
 
