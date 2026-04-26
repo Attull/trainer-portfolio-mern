@@ -3,12 +3,15 @@ import mongoose from 'mongoose';
 const reviewSchema = new mongoose.Schema(
   {
     studentName: { type: String, required: true, trim: true },
+    email: { type: String, default: '', trim: true, lowercase: true },
+    course: { type: String, default: '', trim: true },
     headline: { type: String, default: '', trim: true },
     quote: { type: String, default: '', trim: true },
     source: { type: String, default: '', trim: true },
-    screenshotUrl: { type: String, required: true },
+    screenshotUrl: { type: String, default: '' },
     rating: { type: Number, min: 1, max: 5, default: 5 },
-    isFeatured: { type: Boolean, default: true }
+    isFeatured: { type: Boolean, default: false },
+    isPublished: { type: Boolean, default: true }
   },
   { timestamps: true }
 );

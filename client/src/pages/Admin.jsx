@@ -4,7 +4,7 @@ import { api, assetUrl } from '../api.js';
 
 const emptyBlog = { title: '', category: 'Learning', excerpt: '', content: '', tags: '', isPublished: true };
 const emptyGallery = { title: '', description: '', trainingDate: '', location: '', audience: '', tags: '' };
-const emptyReview = { studentName: '', headline: '', quote: '', source: '', rating: 5, isFeatured: true };
+const emptyReview = { studentName: '', email: '', course: '', headline: '', quote: '', source: '', rating: 5, isFeatured: true, isPublished: true };
 
 export default function Admin() {
   const [token, setToken] = useState(localStorage.getItem('trainer_admin_token') || '');
@@ -142,6 +142,8 @@ export default function Admin() {
         <form className="admin-form" onSubmit={createReview}>
           <h2><MessageSquareQuote size={20} /> New Student Review</h2>
           <input placeholder="Student name" value={reviewForm.studentName} onChange={(event) => setReviewForm({ ...reviewForm, studentName: event.target.value })} required />
+          <input placeholder="Student email" value={reviewForm.email} onChange={(event) => setReviewForm({ ...reviewForm, email: event.target.value })} />
+          <input placeholder="Course or session" value={reviewForm.course} onChange={(event) => setReviewForm({ ...reviewForm, course: event.target.value })} />
           <input placeholder="Short headline" value={reviewForm.headline} onChange={(event) => setReviewForm({ ...reviewForm, headline: event.target.value })} />
           <input placeholder="Source (WhatsApp, LinkedIn, Email)" value={reviewForm.source} onChange={(event) => setReviewForm({ ...reviewForm, source: event.target.value })} />
           <textarea placeholder="Optional quote or summary" value={reviewForm.quote} onChange={(event) => setReviewForm({ ...reviewForm, quote: event.target.value })} />
@@ -175,8 +177,10 @@ export default function Admin() {
           <h2>Student Reviews</h2>
           {reviews.map((review) => (
             <div className="manage-row" key={review._id}>
-              <img src={assetUrl(review.screenshotUrl)} alt={review.studentName} />
-              <span>{review.studentName}</span>
+              {review.screenshotUrl
+                ? <img src={assetUrl(review.screenshotUrl)} alt={review.studentName} />
+                : <div className="manage-thumb-fallback">R</div>}
+              <span>{review.studentName}{review.course ? ` - ${review.course}` : ''}</span>
               <button className="icon-button danger" onClick={() => deleteReview(review._id)} title="Delete review"><Trash2 size={17} /></button>
             </div>
           ))}

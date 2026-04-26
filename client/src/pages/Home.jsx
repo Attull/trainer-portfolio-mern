@@ -9,7 +9,7 @@ export default function Home() {
   const [activeReview, setActiveReview] = useState(0);
 
   useEffect(() => {
-    Promise.all([api.get('/profile'), api.get('/reviews')]).then(([profileRes, reviewRes]) => {
+    Promise.all([api.get('/profile'), api.get('/reviews/featured')]).then(([profileRes, reviewRes]) => {
       setProfile(profileRes.data);
       setReviews(reviewRes.data);
     });
